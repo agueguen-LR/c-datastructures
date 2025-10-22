@@ -5,19 +5,23 @@
  * @date 2025
  */
 
-typedef struct _TreeNode* _Tree;
+#pragma once
+
+#include <stddef.h>
+
+typedef struct _TreeNode* AVLNode;
 
 struct _TreeNode {
-  _Tree parent;
-  _Tree left;
-  _Tree right;
+  AVLNode parent;
+  AVLNode left;
+  AVLNode right;
   int balance;
   char data[1];
 };
 
 struct _AVLTree {
-  _Tree* root;
-  int data_size;
+  AVLNode root;
+  size_t data_size;
   int (*compare)(const void* a, const void* b);
-  int (*delete_data)(void* data);
+  void (*delete_data)(void* data);
 };

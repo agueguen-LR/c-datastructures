@@ -8,8 +8,8 @@ function(enable_clang_format)
 			${CLANG_FORMAT_EXECUTABLE}
 			-i
 			-style=file
-			"${CMAKE_SOURCE_DIR}/src/*.h"
-			"${CMAKE_SOURCE_DIR}/src/*.c"
+			"${CMAKE_SOURCE_DIR}/src/*/*.h"
+			"${CMAKE_SOURCE_DIR}/src/*/*.c"
 			"${CMAKE_SOURCE_DIR}/test/*.c"
 			COMMENT "Format sources."
         )

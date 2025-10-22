@@ -10,11 +10,13 @@ file(GLOB FILES "${CMAKE_SOURCE_DIR}/test/*.c")
 message(STATUS "FILES=${FILES}")
 
 foreach(FILENAME ${FILES})
-  get_filename_component(SRC ${FILENAME} NAME)
   get_filename_component(TEST ${FILENAME} NAME_WE)
-  add_executable(${TEST} ${FILENAME} ${CMAKE_SOURCE_DIR}/src/lib.h)
-  add_dependencies(${TEST} lib)
-  target_link_libraries(${TEST} lib)
+  add_executable(${TEST} ${FILENAME})
+  add_dependencies(${TEST} c-datastructures)
+  target_link_libraries(${TEST} c-datastructures)
+	target_include_directories(${TEST} PRIVATE 
+		${CMAKE_SOURCE_DIR}/src/avl-tree/
+	)
   add_test("${TEST}" ./${TEST})
   if(VALGRIND)
     add_test("${TEST}[valgrind]" ${VALGRIND} --leak-check=full --quiet --error-exitcode=1 ./${TEST})

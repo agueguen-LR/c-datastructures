@@ -1,7 +1,7 @@
 /**
  * @file avl-tree.inc.h
  *
- * @author agueguen-LR <adrien.gueguen@etudiant.uninv-lr.fr>
+ * @author agueguen-LR <adrien.gueguen@etudiant.univ-lr.fr>
  * @date 2025
  */
 

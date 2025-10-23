@@ -14,11 +14,10 @@ foreach(FILENAME ${FILES})
   add_executable(${TEST} ${FILENAME})
   add_dependencies(${TEST} c-datastructures)
   target_link_libraries(${TEST} c-datastructures)
-	target_include_directories(${TEST} PRIVATE 
-		${CMAKE_SOURCE_DIR}/src/avl-tree/
-	)
+  target_include_directories(${TEST} PRIVATE ${CMAKE_SOURCE_DIR}/src/avl-tree/)
   add_test("${TEST}" ./${TEST})
   if(VALGRIND)
-    add_test("${TEST}[valgrind]" ${VALGRIND} --leak-check=full --quiet --error-exitcode=1 ./${TEST})
+    add_test("${TEST}[valgrind]" ${VALGRIND} --leak-check=full --quiet
+             --error-exitcode=1 ./${TEST})
   endif()
 endforeach()

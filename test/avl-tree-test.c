@@ -65,10 +65,10 @@ int main(void) {
     printf("\n------------------\n");
   }
 
-	assert(avl_add(tree, &testVals[0]));
-	assert(avl_add(tree, &testVals[1]));
-	assert(avl_remove(tree, &testVals[0]));
-	assert(avl_add(tree, &testVals[2]));
+  assert(avl_add(tree, &testVals[0]));
+  assert(avl_add(tree, &testVals[1]));
+  assert(avl_remove(tree, &testVals[0]));
+  assert(avl_add(tree, &testVals[2]));
 
   avl_delete(tree);
 

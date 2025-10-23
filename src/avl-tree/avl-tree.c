@@ -225,8 +225,8 @@ static bool __avl_node_add(AVLNode node, const void *data, size_t size, int (*co
       break;
     case 0:
       return true;
-		default:
-			perror("Unexpected comparison result in __avl_node_add");
+    default:
+      perror("Unexpected comparison result in __avl_node_add");
   }
 
   if (*next_node == NULL) {
@@ -248,14 +248,14 @@ static bool __avl_node_add(AVLNode node, const void *data, size_t size, int (*co
 }
 
 bool avl_add(AVLTree tree, const void *data) {
-	if (tree->root == NULL) {
-		AVLNode new_node = __avl_node_new(data, tree->data_size, NULL);
-		if (!new_node) {
-			return false;
-		}
-		tree->root = new_node;
-		return true;
-	}
+  if (tree->root == NULL) {
+    AVLNode new_node = __avl_node_new(data, tree->data_size, NULL);
+    if (!new_node) {
+      return false;
+    }
+    tree->root = new_node;
+    return true;
+  }
 
   if (!__avl_node_add(tree->root, data, tree->data_size, tree->compare)) {
     return false;
@@ -291,87 +291,88 @@ void *avl_find_data(AVLTree tree, const void *data) {
   return node ? node->data : NULL;
 }
 
-static AVLNode __tree_get_min_node(AVLNode node){
-	if (node->left == NULL) return node;
-	return __tree_get_min_node(node->left); // ! Not necessarily a leaf, can have a right branch !
+static AVLNode __tree_get_min_node(AVLNode node) {
+  if (node->left == NULL) return node;
+  return __tree_get_min_node(node->left);  // ! Not necessarily a leaf, can have a right branch !
 }
 
-static AVLNode __tree_get_max_node(AVLNode node){
-	if (node->right == NULL) return node;
-	return __tree_get_max_node(node->right); // ! Not necessarily a leaf, can have a left branch !
+static AVLNode __tree_get_max_node(AVLNode node) {
+  if (node->right == NULL) return node;
+  return __tree_get_max_node(node->right);  // ! Not necessarily a leaf, can have a left branch !
 }
 
 // --- Deletion ---
 
 bool avl_remove(AVLTree tree, const void *data) {
-	if (tree->root == NULL) return false;
+  if (tree->root == NULL) return false;
 
-	AVLNode node = avl_find_node(tree, data);
-	if (node == NULL) {
-		return false;
-	}
-	AVLNode parent = node->parent;
+  AVLNode node = avl_find_node(tree, data);
+  if (node == NULL) {
+    return false;
+  }
+  AVLNode parent = node->parent;
 
-	int child_count = (node->left != NULL) + (node->right != NULL);
-	switch (child_count) {
-		case 2:
-			AVLNode substitute = __tree_get_min_node(node->right); // Get in-order successor
-			memcpy(node->data, substitute->data, tree->data_size);
+  int child_count = (node->left != NULL) + (node->right != NULL);
+  switch (child_count) {
+    case 2:
+      AVLNode substitute = __tree_get_min_node(node->right);  // Get in-order successor
+      memcpy(node->data, substitute->data, tree->data_size);
 
-			if (substitute->left != NULL) __rotate_right(substitute); //logically, min now has to be a leaf
-			parent = substitute->parent; // Rebalancing will start from substitute's parent
-			
-			if (parent->right == substitute){
-				parent->right = NULL; // Special case where in-order successor is direct child
-			} else parent->left = NULL;
+      if (substitute->left != NULL) __rotate_right(substitute);  // logically, min now has to be a leaf
+      parent = substitute->parent;                               // Rebalancing will start from substitute's parent
 
-			__delete_node(substitute, tree->delete_data);
-			break;
+      if (parent->right == substitute) {
+        parent->right = NULL;  // Special case where in-order successor is direct child
+      } else
+        parent->left = NULL;
 
-		case 1:
-			AVLNode child = (node->left != NULL) ? node->left : node->right;
-			if (parent != NULL) {
-				if (parent->left == node) {
-					parent->left = child;
-				} else {
-					parent->right = child;
-				}
-				child->parent = parent;
-			} else {
-				child->parent = NULL;
-				tree->root = child;
-			}
-			__delete_node(node, tree->delete_data);
-			break;
+      __delete_node(substitute, tree->delete_data);
+      break;
 
-		case 0:
-			if (parent != NULL) {
-				if (parent->left == node) {
-					parent->left = NULL;
-				} else {
-					parent->right = NULL;
-				}
-			} else {
-				// Removing the last node in the tree
-				tree->root = NULL;
-				__delete_node(node, tree->delete_data);
-				return true;
-			}
-			__delete_node(node, tree->delete_data);
-			break;
+    case 1:
+      AVLNode child = (node->left != NULL) ? node->left : node->right;
+      if (parent != NULL) {
+        if (parent->left == node) {
+          parent->left = child;
+        } else {
+          parent->right = child;
+        }
+        child->parent = parent;
+      } else {
+        child->parent = NULL;
+        tree->root = child;
+      }
+      __delete_node(node, tree->delete_data);
+      break;
 
-		default:
-			perror("Unexpected child count in avl_remove");
-	}
+    case 0:
+      if (parent != NULL) {
+        if (parent->left == node) {
+          parent->left = NULL;
+        } else {
+          parent->right = NULL;
+        }
+      } else {
+        // Removing the last node in the tree
+        tree->root = NULL;
+        __delete_node(node, tree->delete_data);
+        return true;
+      }
+      __delete_node(node, tree->delete_data);
+      break;
 
-	while (parent != NULL) {
-		__rebalance(parent);
-		parent = parent->parent;
-	}
+    default:
+      perror("Unexpected child count in avl_remove");
+  }
+
+  while (parent != NULL) {
+    __rebalance(parent);
+    parent = parent->parent;
+  }
   // update root node after potential rotations
   while (tree->root->parent != NULL) {
     tree->root = tree->root->parent;
   }
 
-	return true;
+  return true;
 }

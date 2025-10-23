@@ -8,6 +8,9 @@
 #pragma once
 
 #include <stddef.h>
+#include <stdbool.h>
+
+// --- Type Definitions ---
 
 /**
  * @brief AVL tree type.
@@ -19,6 +22,8 @@ typedef struct _AVLTree* AVLTree;
  */
 typedef struct _TreeNode* AVLNode;
 
+// --- Constructors and Destructors ---
+
 /**
  * @brief Create a new AVL tree.
  *
@@ -28,7 +33,7 @@ typedef struct _TreeNode* AVLNode;
  * @param del Deletion function for the data.
  * @return The newly created AVL tree.
  */
-AVLTree tree_new(
+extern AVLTree avl_new(
 		const void *data,
 		size_t size,
 		int (*cmp)(const void *, const void *),
@@ -40,4 +45,73 @@ AVLTree tree_new(
  *
  * @param tree The AVL tree to be deleted.
  */
-void tree_delete(AVLTree tree);
+extern void avl_delete(AVLTree tree);
+
+// --- Getters ---
+
+/**
+ * @brief Get the root node of the AVL tree.
+ *
+ * @param tree The AVL tree.
+ * @return The root node of the AVL tree.
+ */
+extern AVLNode avl_get_root(AVLTree tree);
+
+/**
+ * @brief Get the height of the AVL tree.
+ *
+ * @param tree The AVL tree.
+ * @return The height of the tree.
+ */
+extern int avl_get_height(AVLTree tree);
+
+/**
+ * @brief Get the height of a given AVL tree node.
+ *
+ * @param node The AVL tree node.
+ * @return The height of the node.
+ */
+extern int avl_node_get_height(AVLNode node);
+
+/**
+ * @brief Get the left child of a given AVL tree node.
+ *
+ * @param node The AVL tree node.
+ * @return The left child of the node.
+ */
+extern AVLNode avl_node_get_left(AVLNode node);
+
+/** 
+ * @brief Get the right child of a given AVL tree node.
+ *
+ * @param node The AVL tree node.
+ * @return The right child of the node.
+ */
+extern AVLNode avl_node_get_right(AVLNode node);
+
+/** 
+ * @brief Get the data stored in a given AVL tree node.
+ *
+ * @param node The AVL tree node.
+ * @return Pointer to the data stored in the node.
+ */
+extern void* avl_node_get_data(AVLNode node);
+
+/** 
+ * @brief Get the balance factor of a given AVL tree node.
+ *
+ * @param node The AVL tree node.
+ * @return The balance factor of the node.
+ */
+extern int avl_node_get_balance(AVLNode node);
+
+// --- Insertion ---
+
+/**
+ * @brief Add data to the AVL tree.
+ *
+ * @param tree The AVL tree where data will be inserted.
+ * @param data Pointer to the data to be inserted.
+ * @return true if insertion was successful, false otherwise.
+ */
+extern bool avl_add(AVLTree tree, const void *data);

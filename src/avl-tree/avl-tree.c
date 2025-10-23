@@ -7,6 +7,7 @@
 
 #include "avl-tree.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -28,7 +29,7 @@ static AVLNode __avl_node_new(const void *data, size_t size, AVLNode parent) {
   return node;
 }
 
-AVLTree avl_new(const void *data, size_t size, int (*cmp)(const void *, const void *), void (*del)(void *)) {
+AVLTree avl_new(size_t size, int (*cmp)(const void *, const void *), void (*del)(void *)) {
   AVLTree tree =
       malloc(sizeof(void *) + sizeof(size_t) + sizeof(int (*)(const void *, const void *)) + sizeof(void (*)(void *)));
   if (!tree) {
@@ -38,11 +39,7 @@ AVLTree avl_new(const void *data, size_t size, int (*cmp)(const void *, const vo
   tree->data_size = size;
   tree->compare = cmp;
   tree->delete_data = del;
-  tree->root = __avl_node_new(data, size, NULL);
-  if (!tree->root) {
-    free(tree);
-    return NULL;
-  }
+  tree->root = NULL;
 
   return tree;
 }
@@ -228,6 +225,8 @@ static bool __avl_node_add(AVLNode node, const void *data, size_t size, int (*co
       break;
     case 0:
       return true;
+		default:
+			perror("Unexpected comparison result in __avl_node_add");
   }
 
   if (*next_node == NULL) {
@@ -249,6 +248,15 @@ static bool __avl_node_add(AVLNode node, const void *data, size_t size, int (*co
 }
 
 bool avl_add(AVLTree tree, const void *data) {
+	if (tree->root == NULL) {
+		AVLNode new_node = __avl_node_new(data, tree->data_size, NULL);
+		if (!new_node) {
+			return false;
+		}
+		tree->root = new_node;
+		return true;
+	}
+
   if (!__avl_node_add(tree->root, data, tree->data_size, tree->compare)) {
     return false;
   }
@@ -258,8 +266,6 @@ bool avl_add(AVLTree tree, const void *data) {
   }
   return true;
 }
-
-// --- Deletion ---
 
 // --- Search ---
 
@@ -283,4 +289,89 @@ AVLNode avl_find_node(AVLTree tree, const void *data) {
 void *avl_find_data(AVLTree tree, const void *data) {
   AVLNode node = avl_find_node(tree, data);
   return node ? node->data : NULL;
+}
+
+static AVLNode __tree_get_min_node(AVLNode node){
+	if (node->left == NULL) return node;
+	return __tree_get_min_node(node->left); // ! Not necessarily a leaf, can have a right branch !
+}
+
+static AVLNode __tree_get_max_node(AVLNode node){
+	if (node->right == NULL) return node;
+	return __tree_get_max_node(node->right); // ! Not necessarily a leaf, can have a left branch !
+}
+
+// --- Deletion ---
+
+bool avl_remove(AVLTree tree, const void *data) {
+	if (tree->root == NULL) return false;
+
+	AVLNode node = avl_find_node(tree, data);
+	if (node == NULL) {
+		return false;
+	}
+	AVLNode parent = node->parent;
+
+	int child_count = (node->left != NULL) + (node->right != NULL);
+	switch (child_count) {
+		case 2:
+			AVLNode substitute = __tree_get_min_node(node->right); // Get in-order successor
+			memcpy(node->data, substitute->data, tree->data_size);
+
+			if (substitute->left != NULL) __rotate_right(substitute); //logically, min now has to be a leaf
+			parent = substitute->parent; // Rebalancing will start from substitute's parent
+			
+			if (parent->right == substitute){
+				parent->right = NULL; // Special case where in-order successor is direct child
+			} else parent->left = NULL;
+
+			__delete_node(substitute, tree->delete_data);
+			break;
+
+		case 1:
+			AVLNode child = (node->left != NULL) ? node->left : node->right;
+			if (parent != NULL) {
+				if (parent->left == node) {
+					parent->left = child;
+				} else {
+					parent->right = child;
+				}
+				child->parent = parent;
+			} else {
+				child->parent = NULL;
+				tree->root = child;
+			}
+			__delete_node(node, tree->delete_data);
+			break;
+
+		case 0:
+			if (parent != NULL) {
+				if (parent->left == node) {
+					parent->left = NULL;
+				} else {
+					parent->right = NULL;
+				}
+			} else {
+				// Removing the last node in the tree
+				tree->root = NULL;
+				__delete_node(node, tree->delete_data);
+				return true;
+			}
+			__delete_node(node, tree->delete_data);
+			break;
+
+		default:
+			perror("Unexpected child count in avl_remove");
+	}
+
+	while (parent != NULL) {
+		__rebalance(parent);
+		parent = parent->parent;
+	}
+  // update root node after potential rotations
+  while (tree->root->parent != NULL) {
+    tree->root = tree->root->parent;
+  }
+
+	return true;
 }

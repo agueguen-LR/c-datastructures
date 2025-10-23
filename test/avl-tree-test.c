@@ -45,12 +45,11 @@ int cmpInt(const void *a, const void *b) {
 int testVals[10] = {0, 2, 1, 8, 3, 7, 9, 4, 6, 5};
 
 int main(void) {
-  AVLTree tree = avl_new(&testVals[0], sizeof(int), cmpInt, NULL);
+  AVLTree tree = avl_new(sizeof(int), cmpInt, NULL);
   assert(tree != NULL);
-  assert(avl_get_root(tree) != NULL);
-  assert(avl_node_get_height(avl_get_root(tree)) == 1);
+  assert(avl_get_height(tree) == 0);
 
-  for (int i = 1; i < 10; i++) {
+  for (int i = 0; i < 10; i++) {
     assert(avl_add(tree, &testVals[i]));
     printTree(avl_get_root(tree), 0, 0, printInt);
     printf("\n------------------\n");
@@ -59,6 +58,17 @@ int main(void) {
   assert(avl_get_height(tree) <= 4);
 
   assert(*(int *)avl_find_data(tree, &testVals[5]) == 7);
+
+  for (int i = 0; i < 10; i++) {
+    assert(avl_remove(tree, &testVals[i]));
+    printTree(avl_get_root(tree), 0, 0, printInt);
+    printf("\n------------------\n");
+  }
+
+	assert(avl_add(tree, &testVals[0]));
+	assert(avl_add(tree, &testVals[1]));
+	assert(avl_remove(tree, &testVals[0]));
+	assert(avl_add(tree, &testVals[2]));
 
   avl_delete(tree);
 

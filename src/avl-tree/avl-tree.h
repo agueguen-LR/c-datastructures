@@ -27,13 +27,12 @@ typedef struct _TreeNode *AVLNode;
 /**
  * @brief Create a new AVL tree.
  *
- * @param data Pointer to the data to be stored in the root node.
- * @param size Size of the data in bytes.
+ * @param size Size of the stored data in bytes.
  * @param cmp Comparison function for the data.
  * @param del Deletion function for the data.
  * @return The newly created AVL tree.
  */
-extern AVLTree avl_new(const void *data, size_t size, int (*cmp)(const void *, const void *), void (*del)(void *));
+extern AVLTree avl_new(size_t size, int (*cmp)(const void *, const void *), void (*del)(void *));
 
 /**
  * @brief Delete an AVL tree, freeing all associated memory.
@@ -113,8 +112,31 @@ extern bool avl_add(AVLTree tree, const void *data);
 
 // --- Deletion ---
 
+/**
+ * @brief Remove data from the AVL tree.
+ *
+ * @param tree The AVL tree from which data will be removed.
+ * @param data Pointer to the data to be removed.
+ * @return true if removal was successful, false otherwise.
+ */
+extern bool avl_remove(AVLTree tree, const void *data);
+
 // --- Search ---
 
+/**
+ * @brief Find a node in the AVL tree containing the specified data.
+ *
+ * @param tree The AVL tree to search.
+ * @param data Pointer to the data to search for.
+ * @return The node containing the data, or NULL if not found.
+ */
 extern AVLNode avl_find_node(AVLTree tree, const void *data);
 
+/**
+ * @brief Find data in the AVL tree.
+ *
+ * @param tree The AVL tree to search.
+ * @param data Pointer to the data to search for.
+ * @return Pointer to the found data, or NULL if not found.
+ */
 extern void *avl_find_data(AVLTree tree, const void *data);

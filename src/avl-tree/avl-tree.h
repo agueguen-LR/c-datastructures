@@ -7,20 +7,20 @@
 
 #pragma once
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 // --- Type Definitions ---
 
 /**
  * @brief AVL tree type.
  */
-typedef struct _AVLTree* AVLTree;
+typedef struct _AVLTree *AVLTree;
 
 /**
  * @brief AVL tree node type.
  */
-typedef struct _TreeNode* AVLNode;
+typedef struct _TreeNode *AVLNode;
 
 // --- Constructors and Destructors ---
 
@@ -33,12 +33,7 @@ typedef struct _TreeNode* AVLNode;
  * @param del Deletion function for the data.
  * @return The newly created AVL tree.
  */
-extern AVLTree avl_new(
-		const void *data,
-		size_t size,
-		int (*cmp)(const void *, const void *),
-		void (*del)(void *)
-);
+extern AVLTree avl_new(const void *data, size_t size, int (*cmp)(const void *, const void *), void (*del)(void *));
 
 /**
  * @brief Delete an AVL tree, freeing all associated memory.
@@ -81,7 +76,7 @@ extern int avl_node_get_height(AVLNode node);
  */
 extern AVLNode avl_node_get_left(AVLNode node);
 
-/** 
+/**
  * @brief Get the right child of a given AVL tree node.
  *
  * @param node The AVL tree node.
@@ -89,15 +84,15 @@ extern AVLNode avl_node_get_left(AVLNode node);
  */
 extern AVLNode avl_node_get_right(AVLNode node);
 
-/** 
+/**
  * @brief Get the data stored in a given AVL tree node.
  *
  * @param node The AVL tree node.
  * @return Pointer to the data stored in the node.
  */
-extern void* avl_node_get_data(AVLNode node);
+extern void *avl_node_get_data(AVLNode node);
 
-/** 
+/**
  * @brief Get the balance factor of a given AVL tree node.
  *
  * @param node The AVL tree node.
@@ -115,3 +110,11 @@ extern int avl_node_get_balance(AVLNode node);
  * @return true if insertion was successful, false otherwise.
  */
 extern bool avl_add(AVLTree tree, const void *data);
+
+// --- Deletion ---
+
+// --- Search ---
+
+extern AVLNode avl_find_node(AVLTree tree, const void *data);
+
+extern void *avl_find_data(AVLTree tree, const void *data);

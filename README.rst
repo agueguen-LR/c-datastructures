@@ -1,5 +1,6 @@
 C datastructures
 ================
+|cmake| |Coveralls| 
 
 A collection of C data structures with unit tests and insert, search and remove benchmarking.
 
@@ -69,3 +70,8 @@ Format the code using clang-format.
 
   $ make clang-format
 
+
+.. |cmake| image:: https://github.com/agueguen-LR/c-datastructures/actions/workflows/cmake.yml/badge.svg
+   :target: https://github.com/agueguen-LR/c-datastructures/actions
+.. |Coveralls| image:: https://coveralls.io/repos/github/agueguen-LR/c-datastructures/badge.svg?branch=main
+    :target: https://coveralls.io/github/agueguen-LR/c-datastructures?branch=main

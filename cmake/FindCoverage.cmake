@@ -22,16 +22,21 @@ function(enable_coverage)
       COMMENT "Building coverage info"
       VERBATIM
     )
-    add_custom_command(TARGET coverage POST_BUILD
-      COMMAND
-        ${COVERAGE_EXECUTABLE}
-          --add-tracefile ${CMAKE_CURRENT_BINARY_DIR}/coverage.info
-          --output-file ${CMAKE_BINARY_DIR}/coverage.info
-          --quiet
-    )
-    set_directory_properties(PROPERTIES
-      ADDITIONAL_CLEAN_FILES "${CMAKE_BINARY_DIR}/coverage.info;coverage.info"
-    )
+		add_custom_command(TARGET coverage POST_BUILD
+			COMMAND
+			${COVERAGE_EXECUTABLE}
+			--remove ${CMAKE_CURRENT_BINARY_DIR}/coverage.info "${CMAKE_SOURCE_DIR}/usr/*" --output-file ${CMAKE_CURRENT_BINARY_DIR}/coverage.info.cleaned
+			--quiet
+			--ignore-errors unused
+			COMMAND
+			${COVERAGE_EXECUTABLE}
+			--add-tracefile ${CMAKE_CURRENT_BINARY_DIR}/coverage.info.cleaned
+			--output-file ${CMAKE_BINARY_DIR}/coverage.info
+			--quiet
+        )
+        set_directory_properties(PROPERTIES
+			ADDITIONAL_CLEAN_FILES "${CMAKE_BINARY_DIR}/coverage.info;coverage.info"
+        )
 
   endif()
 endfunction(enable_coverage)

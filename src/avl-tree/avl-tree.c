@@ -316,6 +316,12 @@ bool avl_remove(AVLTree tree, const void *data) {
   switch (child_count) {
     case 2:
       AVLNode substitute = __tree_get_min_node(node->right);  // Get in-order successor
+
+			// store node data temporarily, substitute will need to have it when delete_data is called in __delete_node
+			void* temp = malloc(tree->data_size);
+			if (!temp) return false;
+			memcpy(temp, node->data, tree->data_size);
+
       memcpy(node->data, substitute->data, tree->data_size);
 
       if (substitute->left != NULL) __rotate_right(substitute);  // logically, min now has to be a leaf
@@ -326,6 +332,8 @@ bool avl_remove(AVLTree tree, const void *data) {
       } else
         parent->left = NULL;
 
+			memcpy(substitute->data, temp, tree->data_size); // put back original data to be deleted for delete_data call
+			free(temp);
       __delete_node(substitute, tree->delete_data);
       break;
 

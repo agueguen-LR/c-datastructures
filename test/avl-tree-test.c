@@ -75,6 +75,8 @@ int main(void) {
 
   assert(avl_add(tree, &shortPtrs[0]) == false);  // adding duplicate
 
+  assert(avl_get_size(tree) == 10);
+
   assert(avl_get_height(tree) <= 4);
 
   assert(**(uint16_t**)avl_find_data(tree, &shortPtrs[5]) == 7);

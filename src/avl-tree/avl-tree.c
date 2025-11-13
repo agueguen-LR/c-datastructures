@@ -16,7 +16,7 @@
 
 // --- Constructor and Destructor ---
 
-static AVLNode __avl_node_new(const void *data, size_t size, AVLNode parent) {
+static AVLNode __avl_node_new(const void* data, size_t size, AVLNode parent) {
   AVLNode node = malloc(3 * sizeof(AVLNode) + sizeof(int) + sizeof(size_t) + size);
   if (!node) {
     return NULL;
@@ -29,9 +29,9 @@ static AVLNode __avl_node_new(const void *data, size_t size, AVLNode parent) {
   return node;
 }
 
-AVLTree avl_new(size_t size, int (*cmp)(const void *, const void *), void (*del)(void *)) {
+AVLTree avl_new(size_t size, int (*cmp)(const void*, const void*), void (*del)(void*)) {
   AVLTree tree =
-      malloc(sizeof(void *) + sizeof(size_t) + sizeof(int (*)(const void *, const void *)) + sizeof(void (*)(void *)));
+      malloc(sizeof(void*) + sizeof(size_t) + sizeof(int (*)(const void*, const void*)) + sizeof(void (*)(void*)));
   if (!tree) {
     return NULL;
   }
@@ -44,7 +44,7 @@ AVLTree avl_new(size_t size, int (*cmp)(const void *, const void *), void (*del)
   return tree;
 }
 
-static void __delete_node(AVLNode node, void del(void *)) {
+static void __delete_node(AVLNode node, void del(void*)) {
   if (!node) {
     return;
   }
@@ -55,7 +55,7 @@ static void __delete_node(AVLNode node, void del(void *)) {
   free(node);
 }
 
-static void __delete_all_nodes(AVLNode node, void del(void *)) {
+static void __delete_all_nodes(AVLNode node, void del(void*)) {
   if (node == NULL) {
     return;
   }
@@ -98,6 +98,16 @@ int avl_node_get_height(AVLNode node) {
   }
 }
 
+int __avl_node_get_size(AVLNode node) {
+  if (node == NULL) {
+    return 0;
+  } else {
+    return 1 + __avl_node_get_size(node->left) + __avl_node_get_size(node->right);
+  }
+}
+
+int avl_get_size(AVLTree tree) { return __avl_node_get_size(tree->root); }
+
 AVLNode avl_node_get_left(AVLNode node) {
   if (node == NULL) {
     return NULL;
@@ -112,7 +122,7 @@ AVLNode avl_node_get_right(AVLNode node) {
   return node->right;
 }
 
-void *avl_node_get_data(AVLNode node) {
+void* avl_node_get_data(AVLNode node) {
   if (node == NULL) {
     return NULL;
   }
@@ -208,11 +218,11 @@ static void __rebalance(AVLNode node) {
 
 // --- Insertion ---
 
-static bool __avl_node_add(AVLNode node, const void *data, size_t size, int (*compare)(const void *, const void *)) {
+static bool __avl_node_add(AVLNode node, const void* data, size_t size, int (*compare)(const void*, const void*)) {
   if (node == NULL) {
     return false;
   }
-  AVLNode *next_node;
+  AVLNode* next_node;
 
   int cmp = compare(data, node->data);
   int norm = (cmp > 0) ? 1 : (cmp < 0) ? -1 : 0;
@@ -224,9 +234,11 @@ static bool __avl_node_add(AVLNode node, const void *data, size_t size, int (*co
       next_node = &(node->right);
       break;
     case 0:
-      return true;
+      perror("Adding duplicate data is not allowed in __avl_node_add");
+      return false;
     default:
       perror("Unexpected comparison result in __avl_node_add");
+      return false;
   }
 
   if (*next_node == NULL) {
@@ -247,7 +259,7 @@ static bool __avl_node_add(AVLNode node, const void *data, size_t size, int (*co
   return true;
 }
 
-bool avl_add(AVLTree tree, const void *data) {
+bool avl_add(AVLTree tree, const void* data) {
   if (tree->root == NULL) {
     AVLNode new_node = __avl_node_new(data, tree->data_size, NULL);
     if (!new_node) {
@@ -255,6 +267,12 @@ bool avl_add(AVLTree tree, const void *data) {
     }
     tree->root = new_node;
     return true;
+  }
+
+  if (avl_find_node(tree, data) != NULL) {
+    // Data already exists in the tree
+    printf("Data already exists in the tree, ignoring.\n");
+    return false;
   }
 
   if (!__avl_node_add(tree->root, data, tree->data_size, tree->compare)) {
@@ -269,7 +287,7 @@ bool avl_add(AVLTree tree, const void *data) {
 
 // --- Search ---
 
-AVLNode avl_find_node(AVLTree tree, const void *data) {
+AVLNode avl_find_node(AVLTree tree, const void* data) {
   AVLNode current = tree->root;
 
   while (current != NULL) {
@@ -286,7 +304,7 @@ AVLNode avl_find_node(AVLTree tree, const void *data) {
   return NULL;
 }
 
-void *avl_find_data(AVLTree tree, const void *data) {
+void* avl_find_data(AVLTree tree, const void* data) {
   AVLNode node = avl_find_node(tree, data);
   return node ? node->data : NULL;
 }
@@ -303,7 +321,7 @@ static AVLNode __tree_get_max_node(AVLNode node) {
 
 // --- Deletion ---
 
-bool avl_remove(AVLTree tree, const void *data) {
+bool avl_remove(AVLTree tree, const void* data) {
   if (tree->root == NULL) return false;
 
   AVLNode node = avl_find_node(tree, data);
@@ -316,9 +334,15 @@ bool avl_remove(AVLTree tree, const void *data) {
   switch (child_count) {
     case 2:
       AVLNode substitute = __tree_get_min_node(node->right);  // Get in-order successor
+
+      // store node data temporarily, substitute will need to have it when delete_data is called in __delete_node
+      void* temp = malloc(tree->data_size);
+      if (!temp) return false;
+      memcpy(temp, node->data, tree->data_size);
+
       memcpy(node->data, substitute->data, tree->data_size);
 
-      if (substitute->left != NULL) __rotate_right(substitute);  // logically, min now has to be a leaf
+      if (substitute->right != NULL) __rotate_left(substitute);  // logically, min now has to be a leaf
       parent = substitute->parent;                               // Rebalancing will start from substitute's parent
 
       if (parent->right == substitute) {
@@ -326,6 +350,8 @@ bool avl_remove(AVLTree tree, const void *data) {
       } else
         parent->left = NULL;
 
+      memcpy(substitute->data, temp, tree->data_size);  // put back original data to be deleted for delete_data call
+      free(temp);
       __delete_node(substitute, tree->delete_data);
       break;
 

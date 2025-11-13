@@ -98,6 +98,16 @@ int avl_node_get_height(AVLNode node) {
   }
 }
 
+int __avl_node_get_size(AVLNode node) {
+  if (node == NULL) {
+    return 0;
+  } else {
+    return 1 + __avl_node_get_size(node->left) + __avl_node_get_size(node->right);
+  }
+}
+
+int avl_get_size(AVLTree tree) { return __avl_node_get_size(tree->root); }
+
 AVLNode avl_node_get_left(AVLNode node) {
   if (node == NULL) {
     return NULL;
@@ -224,9 +234,11 @@ static bool __avl_node_add(AVLNode node, const void* data, size_t size, int (*co
       next_node = &(node->right);
       break;
     case 0:
-      return true;
+      perror("Adding duplicate data is not allowed in __avl_node_add");
+      return false;
     default:
       perror("Unexpected comparison result in __avl_node_add");
+      return false;
   }
 
   if (*next_node == NULL) {
@@ -255,6 +267,12 @@ bool avl_add(AVLTree tree, const void* data) {
     }
     tree->root = new_node;
     return true;
+  }
+
+  if (avl_find_node(tree, data) != NULL) {
+    // Data already exists in the tree
+    printf("Data already exists in the tree, ignoring.\n");
+    return false;
   }
 
   if (!__avl_node_add(tree->root, data, tree->data_size, tree->compare)) {
@@ -324,7 +342,7 @@ bool avl_remove(AVLTree tree, const void* data) {
 
       memcpy(node->data, substitute->data, tree->data_size);
 
-      if (substitute->left != NULL) __rotate_right(substitute);  // logically, min now has to be a leaf
+      if (substitute->right != NULL) __rotate_left(substitute);  // logically, min now has to be a leaf
       parent = substitute->parent;                               // Rebalancing will start from substitute's parent
 
       if (parent->right == substitute) {

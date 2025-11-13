@@ -68,6 +68,14 @@ extern int avl_get_height(AVLTree tree);
 extern int avl_node_get_height(AVLNode node);
 
 /**
+ * @brief Get the size (number of nodes) of the AVL tree.
+ *
+ * @param tree The AVL tree.
+ * @return The size of the tree.
+ */
+extern int avl_get_size(AVLTree tree);
+
+/**
  * @brief Get the left child of a given AVL tree node.
  *
  * @param node The AVL tree node.

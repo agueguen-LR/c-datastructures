@@ -15,12 +15,12 @@
 /**
  * @brief AVL tree type.
  */
-typedef struct _AVLTree *AVLTree;
+typedef struct _AVLTree* AVLTree;
 
 /**
  * @brief AVL tree node type.
  */
-typedef struct _TreeNode *AVLNode;
+typedef struct _TreeNode* AVLNode;
 
 // --- Constructors and Destructors ---
 
@@ -32,7 +32,7 @@ typedef struct _TreeNode *AVLNode;
  * @param del Deletion function for the data.
  * @return The newly created AVL tree.
  */
-extern AVLTree avl_new(size_t size, int (*cmp)(const void *, const void *), void (*del)(void *));
+extern AVLTree avl_new(size_t size, int (*cmp)(const void*, const void*), void (*del)(void*));
 
 /**
  * @brief Delete an AVL tree, freeing all associated memory.
@@ -89,7 +89,7 @@ extern AVLNode avl_node_get_right(AVLNode node);
  * @param node The AVL tree node.
  * @return Pointer to the data stored in the node.
  */
-extern void *avl_node_get_data(AVLNode node);
+extern void* avl_node_get_data(AVLNode node);
 
 /**
  * @brief Get the balance factor of a given AVL tree node.
@@ -108,7 +108,7 @@ extern int avl_node_get_balance(AVLNode node);
  * @param data Pointer to the data to be inserted.
  * @return true if insertion was successful, false otherwise.
  */
-extern bool avl_add(AVLTree tree, const void *data);
+extern bool avl_add(AVLTree tree, const void* data);
 
 // --- Deletion ---
 
@@ -119,7 +119,7 @@ extern bool avl_add(AVLTree tree, const void *data);
  * @param data Pointer to the data to be removed.
  * @return true if removal was successful, false otherwise.
  */
-extern bool avl_remove(AVLTree tree, const void *data);
+extern bool avl_remove(AVLTree tree, const void* data);
 
 // --- Search ---
 
@@ -130,7 +130,7 @@ extern bool avl_remove(AVLTree tree, const void *data);
  * @param data Pointer to the data to search for.
  * @return The node containing the data, or NULL if not found.
  */
-extern AVLNode avl_find_node(AVLTree tree, const void *data);
+extern AVLNode avl_find_node(AVLTree tree, const void* data);
 
 /**
  * @brief Find data in the AVL tree.
@@ -139,4 +139,4 @@ extern AVLNode avl_find_node(AVLTree tree, const void *data);
  * @param data Pointer to the data to search for.
  * @return Pointer to the found data, or NULL if not found.
  */
-extern void *avl_find_data(AVLTree tree, const void *data);
+extern void* avl_find_data(AVLTree tree, const void* data);

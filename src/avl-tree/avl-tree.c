@@ -17,7 +17,7 @@
 // --- Constructor and Destructor ---
 
 static AVLNode avl_node_new(const void* data, size_t size, AVLNode parent) {
-  AVLNode node = malloc(3 * sizeof(AVLNode) + sizeof(int) + sizeof(size_t) + size);
+  AVLNode node = malloc(3 * sizeof(AVLNode) + sizeof(int) + size);
   if (!node) {
     return NULL;
   }
@@ -311,12 +311,7 @@ void* avl_find_data(AVLTree tree, const void* data) {
 
 static AVLNode tree_get_min_node(AVLNode node) {
   if (node->left == NULL) return node;
-  return tree_get_min_node(node->left);  // ! Not necessarily a leaf, can have a right branch !
-}
-
-static AVLNode tree_get_max_node(AVLNode node) {
-  if (node->right == NULL) return node;
-  return tree_get_max_node(node->right);  // ! Not necessarily a leaf, can have a left branch !
+  return tree_get_min_node(node->left);
 }
 
 // --- Deletion ---
@@ -372,17 +367,17 @@ bool avl_remove(AVLTree tree, const void* data) {
       break;
 
     case 0:
-      if (parent != NULL) {
-        if (parent->left == node) {
-          parent->left = NULL;
-        } else {
-          parent->right = NULL;
-        }
-      } else {
+      if (parent == NULL) {
         // Removing the last node in the tree
         tree->root = NULL;
         delete_node(node, tree->delete_data);
         return true;
+      }
+
+      if (parent->left == node) {
+        parent->left = NULL;
+      } else {
+        parent->right = NULL;
       }
       delete_node(node, tree->delete_data);
       break;

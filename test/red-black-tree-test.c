@@ -72,12 +72,10 @@ int main(void) {
   assert(rb_get_height(tree) == 0);
 
   for (int i = 0; i < 10; i++) {
-    assert(rb_add(tree, &shortPtrs[i]));
+    rb_add(tree, &shortPtrs[i]);
     printTree(rb_get_root(tree), 0, 0, printShort);
     printf("\n------------------\n");
   }
-
-  assert(rb_add(tree, &shortPtrs[0]) == false);  // adding duplicate
 
   assert(rb_get_size(tree) == 10);
 
@@ -85,20 +83,13 @@ int main(void) {
 
   assert(**(uint16_t**)rb_find_data(tree, &shortPtrs[5]) == 60);
 
-  // for (int i = 0; i < 10; i++) {
-  //   assert(rb_remove(tree, &shortPtrs[i]));
-  //   printTree(rb_get_root(tree), 0, 0, printShort);
-  //   printf("\n------------------\n");
-  // }
+  for (int i = 0; i < 10; i++) {
+    rb_remove(tree, &shortPtrs[i]);
+    printTree(rb_get_root(tree), 0, 0, printShort);
+    printf("\n------------------\n");
+  }
+
   rb_delete(tree);
-
-  // RBTree tree2 = rb_new(sizeof(uint16_t), cmpShort, NULL);
-  // assert(rb_add(tree2, &testVals[0]));
-  // assert(rb_add(tree2, &testVals[1]));
-  // assert(rb_remove(tree2, &testVals[0]));
-  // assert(rb_add(tree2, &testVals[2]));
-
-  // rb_delete(tree2);
 
   return EXIT_SUCCESS;
 }

@@ -13,7 +13,6 @@
 typedef struct _TreeNode* RBNode;
 
 struct _TreeNode {
-  RBNode parent;
   RBNode left;
   RBNode right;
   bool isRed;

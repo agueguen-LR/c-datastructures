@@ -114,9 +114,8 @@ extern bool rb_node_is_red(RBNode node);
  *
  * @param tree The RB tree where data will be inserted.
  * @param data Pointer to the data to be inserted.
- * @return true if insertion was successful, false otherwise.
  */
-extern bool rb_add(RBTree tree, const void* data);
+extern void rb_add(RBTree tree, const void* data);
 
 // --- Deletion ---
 
@@ -125,9 +124,8 @@ extern bool rb_add(RBTree tree, const void* data);
  *
  * @param tree The RB tree from which data will be removed.
  * @param data Pointer to the data to be removed.
- * @return true if removal was successful, false otherwise.
  */
-extern bool rb_remove(RBTree tree, const void* data);
+extern void rb_remove(RBTree tree, const void* data);
 
 // --- Search ---
 

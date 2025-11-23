@@ -17,8 +17,18 @@ static int gcd(int a, int b) {
   return a;
 }
 
-int benchmark(char* output_file_prefix, int number_of_nodes, bool add(const void*), bool remove(const void*),
-              bool search(const void*)) {
+void benchmark_delete(void* data) { return; }
+
+int benchmark_compare(const void* a, const void* b) {
+  uint16_t int_a = *(uint16_t*)a;
+  uint16_t int_b = *(uint16_t*)b;
+  if (int_a < int_b) return -1;
+  if (int_a > int_b) return 1;
+  return 0;
+}
+
+int benchmark(char* output_file_prefix, int number_of_nodes, void add(const void*), void remove(const void*),
+              bool search(const void*), bool verify()) {
   char add_filename[256];
   snprintf(add_filename, sizeof(add_filename), "%s_add.csv", output_file_prefix);
   FILE* file_add = fopen(add_filename, "ax");
@@ -55,8 +65,9 @@ int benchmark(char* output_file_prefix, int number_of_nodes, bool add(const void
     uint16_t val = a * x + b;
 
     clock_t start_time = clock();
-    assert(add(&val));
+    add(&val);
     double time_spent_add = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+    assert(verify());
     fprintf(file_add, "%d,%f\n", x + 1, time_spent_add);
 
     if (x != 0) {
@@ -93,8 +104,9 @@ int benchmark(char* output_file_prefix, int number_of_nodes, bool add(const void
     uint16_t val = a * Xk + b;
 
     clock_t start_time = clock();
-    assert(remove(&val));
+    remove(&val);
     double time_spent_remove = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+    assert(verify());
 
     fprintf(file_remove, "%d,%f\n", N - x, time_spent_remove);
   };

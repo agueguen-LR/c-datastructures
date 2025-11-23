@@ -24,7 +24,8 @@ static bool is_red(RBNode node) {
 static RBNode rb_node_new(const void* data, size_t size, bool isRed) {
   RBNode node = malloc(2 * sizeof(RBNode) + sizeof(bool) + size);
   if (!node) {
-    return NULL;
+    perror("Out of memory");
+    exit(EXIT_FAILURE);
   }
   node->left = NULL;
   node->right = NULL;
@@ -37,7 +38,8 @@ RBTree rb_new(size_t size, int (*cmp)(const void*, const void*), void (*del)(voi
   RBTree tree =
       malloc(sizeof(void*) + sizeof(size_t) + sizeof(int (*)(const void*, const void*)) + sizeof(void (*)(void*)));
   if (!tree) {
-    return NULL;
+    perror("Out of memory");
+    exit(EXIT_FAILURE);
   }
 
   tree->data_size = size;

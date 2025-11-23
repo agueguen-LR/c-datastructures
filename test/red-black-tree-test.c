@@ -78,6 +78,8 @@ int main(void) {
     printf("\n------------------\n");
   }
 
+  rb_add(tree, &shortPtrs[0]);  // adding duplicate should do nothing
+
   assert(rb_get_size(tree) == 18);
 
   assert(rb_get_height(tree) <= 5);
@@ -90,7 +92,6 @@ int main(void) {
     assert(rb_is_valid(tree));
     printf("\n------------------\n");
   }
-
   rb_delete(tree);
 
   RBTree tree2 = rb_new(sizeof(uint16_t), cmpShort, NULL);

@@ -19,7 +19,8 @@
 static AVLNode avl_node_new(const void* data, size_t size, AVLNode parent) {
   AVLNode node = malloc(3 * sizeof(AVLNode) + sizeof(int) + size);
   if (!node) {
-    return NULL;
+    perror("Out of memory");
+    exit(EXIT_FAILURE);
   }
   node->parent = parent;
   node->left = NULL;
@@ -33,7 +34,8 @@ AVLTree avl_new(size_t size, int (*cmp)(const void*, const void*), void (*del)(v
   AVLTree tree =
       malloc(sizeof(void*) + sizeof(size_t) + sizeof(int (*)(const void*, const void*)) + sizeof(void (*)(void*)));
   if (!tree) {
-    return NULL;
+    perror("Out of memory");
+    exit(EXIT_FAILURE);
   }
 
   tree->data_size = size;
@@ -136,6 +138,22 @@ int avl_node_get_balance(AVLNode node) {
   return node->balance;
 }
 
+static bool avl_node_is_valid(AVLNode node) {
+  if (node == NULL) return true;
+  int bal = node->balance;
+  return bal < 2 && bal > -2 && bal == avl_node_get_height(node->left) - avl_node_get_height(node->right);
+}
+
+static bool avl_subtree_is_valid(AVLNode node) {
+  if (node == NULL) return true;
+  return avl_node_is_valid(node) && avl_subtree_is_valid(node->left) && avl_subtree_is_valid(node->right);
+}
+
+bool avl_is_valid(AVLTree tree) {
+  if (tree->root == NULL) return true;
+  return avl_subtree_is_valid(tree->root);
+}
+
 // --- Rotations and Rebalancing ---
 
 static void rotate_right(AVLNode node);
@@ -218,9 +236,9 @@ static void rebalance(AVLNode node) {
 
 // --- Insertion ---
 
-static bool avl_node_add(AVLNode node, const void* data, size_t size, int (*compare)(const void*, const void*)) {
+static void avl_node_add(AVLNode node, const void* data, size_t size, int (*compare)(const void*, const void*)) {
   if (node == NULL) {
-    return false;
+    return;
   }
   AVLNode* next_node;
 
@@ -233,56 +251,34 @@ static bool avl_node_add(AVLNode node, const void* data, size_t size, int (*comp
     case 1:
       next_node = &(node->right);
       break;
-    case 0:
-      perror("Adding duplicate data is not allowed in avl_node_add");
-      return false;
     default:
-      perror("Unexpected comparison result in avl_node_add");
-      return false;
+      return;
   }
 
   if (*next_node == NULL) {
     AVLNode new_node = avl_node_new(data, size, node);
-    if (!new_node) {
-      return false;
-    }
     *next_node = new_node;
     node->balance = avl_node_get_height(node->left) - avl_node_get_height(node->right);
-    return true;
+    return;
   }
 
-  if (!avl_node_add(*next_node, data, size, compare)) {  // recursion
-    return false;
-  }
-
+  avl_node_add(*next_node, data, size, compare);
   rebalance(node);
-  return true;
 }
 
-bool avl_add(AVLTree tree, const void* data) {
+void avl_add(AVLTree tree, const void* data) {
   if (tree->root == NULL) {
     AVLNode new_node = avl_node_new(data, tree->data_size, NULL);
-    if (!new_node) {
-      return false;
-    }
     tree->root = new_node;
-    return true;
+    return;
   }
 
-  if (avl_find_node(tree, data) != NULL) {
-    // Data already exists in the tree
-    printf("Data already exists in the tree, ignoring.\n");
-    return false;
-  }
+  avl_node_add(tree->root, data, tree->data_size, tree->compare);
 
-  if (!avl_node_add(tree->root, data, tree->data_size, tree->compare)) {
-    return false;
-  }
   // update root node after potential rotations
   while (tree->root->parent != NULL) {
     tree->root = tree->root->parent;
   }
-  return true;
 }
 
 // --- Search ---
@@ -316,23 +312,25 @@ static AVLNode tree_get_min_node(AVLNode node) {
 
 // --- Deletion ---
 
-bool avl_remove(AVLTree tree, const void* data) {
-  if (tree->root == NULL) return false;
+void avl_remove(AVLTree tree, const void* data) {
+  if (tree->root == NULL) return;
 
   AVLNode node = avl_find_node(tree, data);
-  if (node == NULL) {
-    return false;
-  }
-  AVLNode parent = node->parent;
+  if (node == NULL) return;
 
+  AVLNode parent = node->parent;
   int child_count = (node->left != NULL) + (node->right != NULL);
+
   switch (child_count) {
     case 2:
       AVLNode substitute = tree_get_min_node(node->right);  // Get in-order successor
 
       // store node data temporarily, substitute will need to have it when delete_data is called in delete_node
       void* temp = malloc(tree->data_size);
-      if (!temp) return false;
+      if (!temp) {
+        perror("Out of memory");
+        exit(EXIT_FAILURE);
+      }
       memcpy(temp, node->data, tree->data_size);
 
       memcpy(node->data, substitute->data, tree->data_size);
@@ -371,7 +369,7 @@ bool avl_remove(AVLTree tree, const void* data) {
         // Removing the last node in the tree
         tree->root = NULL;
         delete_node(node, tree->delete_data);
-        return true;
+        return;
       }
 
       if (parent->left == node) {
@@ -380,10 +378,6 @@ bool avl_remove(AVLTree tree, const void* data) {
         parent->right = NULL;
       }
       delete_node(node, tree->delete_data);
-      break;
-
-    default:
-      perror("Unexpected child count in avl_remove");
   }
 
   while (parent != NULL) {
@@ -394,6 +388,4 @@ bool avl_remove(AVLTree tree, const void* data) {
   while (tree->root->parent != NULL) {
     tree->root = tree->root->parent;
   }
-
-  return true;
 }

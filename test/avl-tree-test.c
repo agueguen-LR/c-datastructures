@@ -53,12 +53,12 @@ int cmpShort(const void* a, const void* b) {
 
 void freeShortPtr(void* data) { free(*(uint16_t**)data); }
 
-uint16_t testVals[10] = {0, 2, 1, 8, 3, 7, 9, 4, 6, 5};
+uint16_t testVals[18] = {10, 85, 15, 70, 20, 60, 30, 50, 65, 80, 90, 91, 92, 93, 9, 8, 7, 4};
 
 int main(void) {
   // Emulating a situation that would need a cleanup function, like freeShortPtr here.
-  uint16_t* shortPtrs[10];
-  for (int i = 0; i < 10; i++) {
+  uint16_t* shortPtrs[18];
+  for (int i = 0; i < 18; i++) {
     shortPtrs[i] = malloc(sizeof(uint16_t));
     *shortPtrs[i] = testVals[i];
   }
@@ -67,32 +67,33 @@ int main(void) {
   assert(tree != NULL);
   assert(avl_get_height(tree) == 0);
 
-  for (int i = 0; i < 10; i++) {
-    assert(avl_add(tree, &shortPtrs[i]));
+  for (int i = 0; i < 18; i++) {
+    avl_add(tree, &shortPtrs[i]);
     printTree(avl_get_root(tree), 0, 0, printShort);
+    assert(avl_is_valid(tree));
     printf("\n------------------\n");
   }
 
-  assert(avl_add(tree, &shortPtrs[0]) == false);  // adding duplicate
+  avl_add(tree, &shortPtrs[0]);  // adding duplicate should do nothing
 
-  assert(avl_get_size(tree) == 10);
+  assert(avl_get_size(tree) == 18);
 
-  assert(avl_get_height(tree) <= 4);
+  assert(avl_get_height(tree) <= 5);
 
-  assert(**(uint16_t**)avl_find_data(tree, &shortPtrs[5]) == 7);
+  assert(**(uint16_t**)avl_find_data(tree, &shortPtrs[5]) == 60);
 
-  for (int i = 0; i < 10; i++) {
-    assert(avl_remove(tree, &shortPtrs[i]));
+  for (int i = 0; i < 18; i++) {
+    avl_remove(tree, &shortPtrs[i]);
     printTree(avl_get_root(tree), 0, 0, printShort);
+    assert(avl_is_valid(tree));
     printf("\n------------------\n");
   }
   avl_delete(tree);
 
   AVLTree tree2 = avl_new(sizeof(uint16_t), cmpShort, NULL);
-  assert(avl_add(tree2, &testVals[0]));
-  assert(avl_add(tree2, &testVals[1]));
-  assert(avl_remove(tree2, &testVals[0]));
-  assert(avl_add(tree2, &testVals[2]));
+  avl_add(tree2, &testVals[0]);
+  avl_add(tree2, &testVals[1]);
+  avl_add(tree2, &testVals[2]);
 
   avl_delete(tree2);
 

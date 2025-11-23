@@ -135,6 +135,29 @@ void* rb_node_get_data(RBNode node) {
 
 bool rb_node_is_red(RBNode node) { return is_red(node); }
 
+static int rb_node_is_valid(RBNode node, int black_nodes) {
+  if (node == NULL) {
+    return black_nodes;
+  }
+
+  if (node->isRed && (is_red(node->left) || is_red(node->right))) return -1;
+
+  int l_black_nodes = rb_node_is_valid(node->left, black_nodes + !node->isRed);
+  if (l_black_nodes == -1) return -1;
+
+  int r_black_nodes = rb_node_is_valid(node->right, black_nodes + !node->isRed);
+  if (r_black_nodes == -1) return -1;
+
+  if (l_black_nodes != r_black_nodes) return -1;
+  return l_black_nodes;
+}
+
+bool rb_is_valid(RBTree tree) {
+  if (tree->root == NULL) return true;
+  if (tree->root->isRed) return false;
+  return rb_node_is_valid(tree->root, 0) != -1;
+}
+
 // --- Rotations and Rebalancing ---
 
 static void flip_colors(RBNode node) {
@@ -302,7 +325,7 @@ static RBNode rb_node_remove(RBNode* node, const void* data, size_t size, int (*
 
     // node is internal
     if (compare(data, (*node)->data) == 0) {
-			if (del) del((*node)->data);
+      if (del) del((*node)->data);
       memcpy((*node)->data, rb_get_min_node((*node)->right)->data, size);
       (*node)->right = rb_node_remove_min(&(*node)->right, data, compare, del, false);
     }

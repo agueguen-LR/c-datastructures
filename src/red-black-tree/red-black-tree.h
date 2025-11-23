@@ -107,6 +107,14 @@ extern void* rb_node_get_data(RBNode node);
  */
 extern bool rb_node_is_red(RBNode node);
 
+/**
+ * @brief Check if the RB tree is valid (i.e., satisfies all RB tree properties).
+ *
+ * @param tree The RB tree to be checked.
+ * @return true if the tree is valid, false otherwise.
+ */
+extern bool rb_is_valid(RBTree tree);
+
 // --- Insertion ---
 
 /**

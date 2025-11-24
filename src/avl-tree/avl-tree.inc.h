@@ -12,10 +12,9 @@
 typedef struct _TreeNode* AVLNode;
 
 struct _TreeNode {
-  AVLNode parent;
   AVLNode left;
   AVLNode right;
-  int balance;
+  int height;
   char data[1];
 };
 

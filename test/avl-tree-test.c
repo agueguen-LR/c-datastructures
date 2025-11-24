@@ -1,3 +1,10 @@
+/**
+ * @file avl-tree-test.c
+ *
+ * @author agueguen-LR <adrien.gueguen@etudiant.univ-lr.fr>
+ * @date 2025
+ */
+
 #include "avl-tree.h"
 
 #include <assert.h>
@@ -7,7 +14,7 @@
 #include <stdlib.h>
 
 void printShort(AVLNode node) {
-  printf("%d:%d\n", **(uint16_t**)(avl_node_get_data(node)), avl_node_get_balance(node));
+  printf("%d:%d\n", **(uint16_t**)(avl_node_get_data(node)), avl_node_get_height(node));
 }
 
 void printTree(AVLNode node, int current_depth, int LR, void printfunc(AVLNode tree)) {

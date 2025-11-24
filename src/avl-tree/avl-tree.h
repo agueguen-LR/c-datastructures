@@ -100,14 +100,6 @@ extern AVLNode avl_node_get_right(AVLNode node);
 extern void* avl_node_get_data(AVLNode node);
 
 /**
- * @brief Get the balance factor of a given AVL tree node.
- *
- * @param node The AVL tree node.
- * @return The balance factor of the node.
- */
-extern int avl_node_get_balance(AVLNode node);
-
-/**
  * @brief Check if the AVL tree is valid (balanced and follows AVL properties).
  *
  * @param tree The AVL tree to be checked.

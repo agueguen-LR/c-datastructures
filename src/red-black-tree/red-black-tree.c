@@ -304,6 +304,8 @@ static RBNode rb_node_remove_min(RBNode* node, const void* data, int (*compare)(
 // rb_node_add
 static RBNode rb_node_remove(RBNode* node, const void* data, size_t size, int (*compare)(const void*, const void*),
                              void (*del)(void*)) {
+  if (*node == NULL) return NULL;
+
   if (compare(data, (*node)->data) < 0) {
     if (!is_red((*node)->left) && (*node)->left != NULL && !is_red((*node)->left->left)) {
       *node = rb_move_red_left(node);

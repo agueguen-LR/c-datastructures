@@ -13,9 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void printShort(AVLNode node) {
-  printf("%d:%d\n", **(uint16_t**)(avl_node_get_data(node)), avl_node_get_height(node));
-}
+void printShort(AVLNode node) { printf("%d:%d\n", **(uint16_t**)(avl_node_get_data(node)), avl_node_get_height(node)); }
 
 void printTree(AVLNode node, int current_depth, int LR, void printfunc(AVLNode tree)) {
   if (current_depth > 10) {
@@ -101,6 +99,8 @@ int main(void) {
   avl_add(tree2, &testVals[0]);
   avl_add(tree2, &testVals[1]);
   avl_add(tree2, &testVals[2]);
+  avl_remove(tree2, &testVals[3]);
+  assert(avl_is_valid(tree2));
 
   avl_delete(tree2);
 

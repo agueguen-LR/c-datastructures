@@ -272,7 +272,7 @@ static AVLNode tree_get_min_node(AVLNode node) {
 
 static AVLNode avl_node_remove(AVLNode* node, const void* data, size_t size, int (*compare)(const void*, const void*),
                                void (*del)(void*), bool del_data) {
-  if (node == NULL) {
+  if (*node == NULL) {
     return NULL;
   }
 

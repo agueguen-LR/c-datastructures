@@ -105,6 +105,8 @@ int main(void) {
   rb_add(tree2, &testVals[0]);
   rb_add(tree2, &testVals[1]);
   rb_add(tree2, &testVals[2]);
+  rb_remove(tree2, &testVals[3]);
+  assert(rb_is_valid(tree2));
 
   rb_delete(tree2);
 

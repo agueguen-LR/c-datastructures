@@ -1,3 +1,10 @@
+/**
+ * @file benchmark.c
+ *
+ * @author agueguen-LR <adrien.gueguen@etudiant.univ-lr.fr>
+ * @date 2025
+ */
+
 #include "benchmark.h"
 
 #include <assert.h>
@@ -7,18 +14,18 @@
 #include <stdlib.h>
 #include <time.h>
 
-// Get greatest common divisor of a and b
-static int gcd(int a, int b) {
-  while (b != 0) {
-    int temp = b;
-    b = a % b;
-    a = temp;
-  }
-  return a;
+void benchmark_delete(void* data) { return; }
+
+int benchmark_compare(const void* a, const void* b) {
+  uint32_t int_a = *(uint32_t*)a;
+  uint32_t int_b = *(uint32_t*)b;
+  if (int_a < int_b) return -1;
+  if (int_a > int_b) return 1;
+  return 0;
 }
 
-int benchmark(char* output_file_prefix, int number_of_nodes, bool add(const void*), bool remove(const void*),
-              bool search(const void*)) {
+int benchmark(char* output_file_prefix, int number_of_nodes, int batch_size, void add(const void*),
+              void remove(const void*), bool search(const void*), bool verify()) {
   char add_filename[256];
   snprintf(add_filename, sizeof(add_filename), "%s_add.csv", output_file_prefix);
   FILE* file_add = fopen(add_filename, "ax");
@@ -45,58 +52,48 @@ int benchmark(char* output_file_prefix, int number_of_nodes, bool add(const void
 
   srand(time(NULL));  // flawfinder: ignore
 
-  // https://en.wikipedia.org/wiki/Permuted_congruential_generator
-  uint16_t a = (rand() | 1) % 65536;
-  uint16_t b = rand() % 65536;
-  uint16_t N = number_of_nodes;
+  uint32_t a = (rand() | 1) % BENCHMARK_MAX_NODES;  // 2 ** 20 MAX
+  uint32_t b = rand() % BENCHMARK_MAX_NODES;
+  uint32_t N = number_of_nodes;
 
-  for (uint16_t x = 0; x < N; x++) {
-    printf("\rAdd and Search Progress: %f%%", ((float)x / (N - 1)) * 100);
-    uint16_t val = a * x + b;
+  for (uint32_t x = 0; x < N; x += batch_size) {
+    uint32_t batch_end = (x + batch_size < N) ? x + batch_size : N;
+    printf("\rAdd and Search Progress: %f%%", ((double)(batch_end - 1) / (N - 1)) * 100);
 
     clock_t start_time = clock();
-    assert(add(&val));
-    double time_spent_add = (double)(clock() - start_time) / CLOCKS_PER_SEC;
-    fprintf(file_add, "%d,%f\n", x + 1, time_spent_add);
-
-    if (x != 0) {
-      val = (a * (rand() % x) + b);  // random value among those already added
+    for (uint32_t i = x; i < batch_end; i++) {
+      const uint32_t val = (a * i + b) % BENCHMARK_MAX_NODES;
+      add(&val);
     }
+    double time_spent_add = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+    assert(verify());
+    fprintf(file_add, "%d,%f\n", batch_end, time_spent_add);
+
     start_time = clock();
-    assert(search(&val));
+    for (uint32_t i = x; i < batch_end; i++) {
+      uint32_t val = (a * (rand() % (batch_end)) + b) % BENCHMARK_MAX_NODES;
+      assert(search(&val));
+    }
     double time_spent_search = (double)(clock() - start_time) / CLOCKS_PER_SEC;
-    fprintf(file_search, "%d,%f\n", x + 1, time_spent_search);
+    fprintf(file_search, "%d,%f\n", batch_end, time_spent_search);
   }
 
   printf("\n");
 
-  // This attempts to find a k coprime with N for the removal permutation
-  // If it fails after MAX_TRIES, it just uses k = 1 (no permutation) but still has the offset from p
-  uint16_t k;
-  int i = 0;
-  int MAX_TRIES = 10;
-  do {
-    k = (rand() | 1) % N;
-    i++;
-  } while (gcd(k, N) != 1 && i < MAX_TRIES);
-  if (i == MAX_TRIES) {
-    printf("Could not find coprime k for N=%d after %d tries, using k=1\n", N, MAX_TRIES);
-    k = 1;
-  };
-  uint16_t p = rand() % N;
-
-  for (uint16_t x = 0; x < N; x++) {
-    printf("\rRemove Progress: %f%%", ((float)x / (N - 1)) * 100);
-    // Here I use another permutation among values of x, this allows me to remove in a different order than insertion
-    // I do still need to use a and b to only remove values that were actually added earlier
-    uint16_t Xk = (k * x + p) % N;
-    uint16_t val = a * Xk + b;
+  uint32_t p = rand() % N;
+  for (uint32_t x = 0; x < N; x += batch_size) {
+    uint32_t batch_end = (x + batch_size < N) ? x + batch_size : N;
+    printf("\rRemove Progress: %f%%", ((double)(batch_end - 1) / (N - 1)) * 100);
 
     clock_t start_time = clock();
-    assert(remove(&val));
+    for (uint32_t i = x; i < batch_end; i++) {
+      uint32_t Xk = (i + p) % N;  // offset by random p to avoid removing in same order as added
+      const uint32_t val = (a * Xk + b) % BENCHMARK_MAX_NODES;
+      remove(&val);
+    }
     double time_spent_remove = (double)(clock() - start_time) / CLOCKS_PER_SEC;
-
-    fprintf(file_remove, "%d,%f\n", N - x, time_spent_remove);
+    assert(verify());
+    fprintf(file_remove, "%d,%f\n", N - batch_end, time_spent_remove);
   };
 
   fclose(file_add);

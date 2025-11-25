@@ -1,11 +1,11 @@
 /**
- * @file avl-tree-test.c
+ * @file red-black-tree-test.c
  *
  * @author agueguen-LR <adrien.gueguen@etudiant.univ-lr.fr>
  * @date 2025
  */
 
-#include "avl-tree.h"
+#include "red-black-tree.h"
 
 #include <assert.h>
 #include <stdbool.h>
@@ -13,18 +13,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void printShort(AVLNode node) { printf("%d:%d\n", **(uint16_t**)(avl_node_get_data(node)), avl_node_get_height(node)); }
+void printShort(RBNode node) {
+  if (rb_node_is_red(node)) {
+    printf("\033[31m%d\033[0m\n", **(uint16_t**)(rb_node_get_data(node)));
+  } else {
+    printf("%d\n", **(uint16_t**)(rb_node_get_data(node)));
+  }
+}
 
-void printTree(AVLNode node, int current_depth, int LR, void printfunc(AVLNode tree)) {
+void printTree(RBNode node, int current_depth, int LR, void printfunc(RBNode tree)) {
   if (current_depth > 10) {
     printf("Houston, we have a problem");
     return;
   }
   assert(LR == 0 || LR == -1 || LR == 1);
   if (node) {
-    printTree(avl_node_get_left(node), current_depth + 1, 1, printfunc);
+    printTree(rb_node_get_left(node), current_depth + 1, 1, printfunc);
     for (int i = 0; i < current_depth; i++) {
-      printf("    ");
+      printf("  ");
     }
     switch (LR) {
       case -1:
@@ -36,7 +42,7 @@ void printTree(AVLNode node, int current_depth, int LR, void printfunc(AVLNode t
         break;
     }
     printfunc(node);
-    printTree(avl_node_get_right(node), current_depth + 1, -1, printfunc);
+    printTree(rb_node_get_right(node), current_depth + 1, -1, printfunc);
   }
 }
 
@@ -68,41 +74,41 @@ int main(void) {
     *shortPtrs[i] = testVals[i];
   }
 
-  AVLTree tree = avl_new(sizeof(uint16_t*), cmpShortPtr, freeShortPtr);
+  RBTree tree = rb_new(sizeof(uint16_t*), cmpShortPtr, freeShortPtr);
   assert(tree != NULL);
-  assert(avl_get_height(tree) == 0);
+  assert(rb_get_height(tree) == 0);
 
   for (int i = 0; i < 18; i++) {
-    avl_add(tree, &shortPtrs[i]);
-    printTree(avl_get_root(tree), 0, 0, printShort);
-    assert(avl_is_valid(tree));
+    rb_add(tree, &shortPtrs[i]);
+    printTree(rb_get_root(tree), 0, 0, printShort);
+    assert(rb_is_valid(tree));
     printf("\n------------------\n");
   }
 
-  avl_add(tree, &shortPtrs[0]);  // adding duplicate should do nothing
+  rb_add(tree, &shortPtrs[0]);  // adding duplicate should do nothing
 
-  assert(avl_get_size(tree) == 18);
+  assert(rb_get_size(tree) == 18);
 
-  assert(avl_get_height(tree) <= 5);
+  assert(rb_get_height(tree) <= 5);
 
-  assert(**(uint16_t**)avl_find_data(tree, &shortPtrs[5]) == 60);
+  assert(**(uint16_t**)rb_find_data(tree, &shortPtrs[5]) == 60);
 
   for (int i = 0; i < 18; i++) {
-    avl_remove(tree, &shortPtrs[i]);
-    printTree(avl_get_root(tree), 0, 0, printShort);
-    assert(avl_is_valid(tree));
+    rb_remove(tree, &shortPtrs[i]);
+    printTree(rb_get_root(tree), 0, 0, printShort);
+    assert(rb_is_valid(tree));
     printf("\n------------------\n");
   }
-  avl_delete(tree);
+  rb_delete(tree);
 
-  AVLTree tree2 = avl_new(sizeof(uint16_t), cmpShort, NULL);
-  avl_add(tree2, &testVals[0]);
-  avl_add(tree2, &testVals[1]);
-  avl_add(tree2, &testVals[2]);
-  avl_remove(tree2, &testVals[3]);
-  assert(avl_is_valid(tree2));
+  RBTree tree2 = rb_new(sizeof(uint16_t), cmpShort, NULL);
+  rb_add(tree2, &testVals[0]);
+  rb_add(tree2, &testVals[1]);
+  rb_add(tree2, &testVals[2]);
+  rb_remove(tree2, &testVals[3]);
+  assert(rb_is_valid(tree2));
 
-  avl_delete(tree2);
+  rb_delete(tree2);
 
   return EXIT_SUCCESS;
 }

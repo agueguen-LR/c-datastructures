@@ -100,12 +100,12 @@ extern AVLNode avl_node_get_right(AVLNode node);
 extern void* avl_node_get_data(AVLNode node);
 
 /**
- * @brief Get the balance factor of a given AVL tree node.
+ * @brief Check if the AVL tree is valid (balanced and follows AVL properties).
  *
- * @param node The AVL tree node.
- * @return The balance factor of the node.
+ * @param tree The AVL tree to be checked.
+ * @return true if the tree is valid, false otherwise.
  */
-extern int avl_node_get_balance(AVLNode node);
+extern bool avl_is_valid(AVLTree tree);
 
 // --- Insertion ---
 
@@ -116,7 +116,7 @@ extern int avl_node_get_balance(AVLNode node);
  * @param data Pointer to the data to be inserted.
  * @return true if insertion was successful, false otherwise.
  */
-extern bool avl_add(AVLTree tree, const void* data);
+extern void avl_add(AVLTree tree, const void* data);
 
 // --- Deletion ---
 
@@ -127,7 +127,7 @@ extern bool avl_add(AVLTree tree, const void* data);
  * @param data Pointer to the data to be removed.
  * @return true if removal was successful, false otherwise.
  */
-extern bool avl_remove(AVLTree tree, const void* data);
+extern void avl_remove(AVLTree tree, const void* data);
 
 // --- Search ---
 

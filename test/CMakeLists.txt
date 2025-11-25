@@ -14,7 +14,10 @@ foreach(FILENAME ${FILES})
   add_executable(${TEST} ${FILENAME})
   add_dependencies(${TEST} c-datastructures)
   target_link_libraries(${TEST} c-datastructures)
-  target_include_directories(${TEST} PRIVATE ${CMAKE_SOURCE_DIR}/src/avl-tree/)
+  target_include_directories(${TEST} PRIVATE
+		${CMAKE_SOURCE_DIR}/src/avl-tree/
+		${CMAKE_SOURCE_DIR}/src/red-black-tree/
+	)
   add_test("${TEST}" ./${TEST})
   if(VALGRIND)
     add_test("${TEST}[valgrind]" ${VALGRIND} --leak-check=full --quiet

@@ -26,49 +26,74 @@ Compilation
 
 Create the build directory and compile the project.
 
-.. code:: shell-session
+.. code-block:: bash
 
-  $ mkdir build
-  $ cd build
-  $ cmake ..  \
+  mkdir build
+  cd build
+  cmake ..  \
      -DBUILD_COVERAGE=1 \
      -DBUILD_HTML_COVERAGE=1 \
      -DUSE_VALGRIND=1 \
-  $ make
+     -DCMAKE_BUILD_TYPE=Debug
+  make
 
 Review Code
 -----------
 
-Run test and code coverage
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Run tests and code coverage
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Run the tests and check the code coverage.
 
 Code coverage is generated in the build/coverage directory.
 
-.. code:: shell-session
+.. code-block:: bash
 
-   $ make test
-   $ make coverage
-   $ make html-coverage
+   make test
+   make coverage
+   make html-coverage
+
+You can also run the test executables directly for basic visualisations of the structure during 'add' and 'remove' operations.
+
+.. code-block:: bash
+
+    ./test/avl-tree-test
+    ./test/rb-tree-test
+  
+Run benchmarking
+~~~~~~~~~~~~~~~~
+
+Run the benchmarks for insert, search and remove operations.
+
+There's an executable for each data structure, you must specify how many elements to insert/search/remove, how many operations should happen between each time measurement and a file prefix for the  3 output files (<prefix>_add.csv, <prefix>_search.csv and <prefix>_remove.csv).
+
+2^20 (1,048,576) nodes is the max benchmarking node count currently.
+
+The files that will be created based on the provided prefix must not already exist.
+
+.. code-block:: bash
+
+  ./benchmarking/avl-benchmark <node-count> <batch-size> <file-prefix> 
+  ./benchmarking/rb-benchmark <node-count> <batch-size> <file-prefix> 
+  
 
 Run flaw finder
 ~~~~~~~~~~~~~~~
 
 Check for any security issues in the code.
 
-.. code:: shell-session
+.. code-block:: bash
 
-  $ make flawfinder
+  make flawfinder
 
 Format code
 ~~~~~~~~~~~~
 
 Format the code using clang-format.
 
-.. code:: shell-session
+.. code-block:: bash
 
-  $ make clang-format
+  make clang-format
 
 
 .. |cmake| image:: https://github.com/agueguen-LR/c-datastructures/actions/workflows/cmake.yml/badge.svg
